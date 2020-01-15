@@ -81,7 +81,7 @@ Show-parens-mode highlights matching parens, and electric-pair-mode tries to aut
 
 #+BEGIN_SRC emacs-lisp
   ;; Highlight matching parens & other pairs
-  (show-parens-mode)
+  (show-paren-mode)
   ;; Automatically try to balance parens & other pairs
   (electric-pair-mode)
 #+END_SRC
@@ -153,7 +153,15 @@ You can type =C-c '= to open a code buffer inside an R code block.
     (("README\\.md\\'" . gfm-mode)
      ("\\.md\\'" . markdown-mode)
      ("\\.Rmd\\'" . markdown-mode)
-     ("\\.markdown\\'" . markdown-mode)))
+     ("\\.markdown\\'" . markdown-mode))
+    :bind
+    (:map markdown-mode-map
+        ("M-p" . markdown-previous-visible-heading)
+        ("M-n" . markdown-next-visible-heading))
+    :config
+    (setq markdown-enable-math t
+        markdown-fontify-code-blocks-natively t))
+
 #+END_SRC
 
 * Git (magit)
@@ -191,4 +199,222 @@ This package configuration lets you type =C-c C-r=  to bring up a list of your r
     (setq bibtex-completion-bibliography my/bib-file-location)
     ;; default is to open pdf - change that to insert citation
     (setq ivy-bibtex-default-action #'ivy-bibtex-insert-citation))
+#+END_SRC
+
+* Org Mode 
+
+Org mode is a great thing. I use it for writing academic papers,
+managing my schedule, managing my references and notes, writing
+presentations, writing lecture slides, and pretty much anything
+else.
+
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :bind
+  (("C-c l" . org-store-link)
+   ("C-'" . org-cycle-agenda-files) ; quickly access agenda files
+   :map org-mode-map
+   ("C-a" . org-beginning-of-line)
+   ("C-e" . org-end-of-line)
+   ;; Bind M-p and M-n to navigate heading more easily (these are bound to
+   ;; C-c C-p/n by default):
+   ("M-p" . my/org-previous-visible-heading)
+   ("M-n" . my/org-next-visible-heading)
+   ;; C-c C-t is bound to `org-todo' by default, but I want it
+   ;; bound to C-c t as well:
+   ("C-c t" . org-todo))
+  :hook
+  (org-mode . my/setup-org-mode)
+  :custom
+  (org-blank-before-new-entry nil)
+  (org-cycle-separator-lines 0)
+  (org-pretty-entities t "UTF8 all the things!")
+  (org-support-shift-select t "Holding shift and moving point should select things.")
+  (org-fontify-quote-and-verse-blocks t "Provide a special face for quote and verse blocks.")
+  (org-M-RET-may-split-line nil "M-RET may never split a line.")
+  (org-enforce-todo-dependencies t "Can't finish parent before children.")
+  (org-enforce-todo-checkbox-dependencies t "Can't finish parent before children.")
+  (org-hide-emphasis-markers t "Make words italic or bold, hide / and *.")
+  (org-catch-invisible-edits 'show-and-error "Don't let me edit things I can't see.")
+  (org-special-ctrl-a/e t "Make C-a and C-e work more like how I want:.")
+  (org-preview-latex-default-process 'imagemagick "Let org's preview mechanism use imagemagick instead of dvipng.")
+  ;; Let imenu go deeper into menu structure
+  (org-imenu-depth 6)
+  (org-image-actual-width '(300))
+  (org-blank-before-new-entry '((heading . nil)
+                                (plain-list-item . nil)))
+  ;; For whatever reason, I have to explicitely tell org how to open pdf
+  ;; links.  I use pdf-tools.  If pdf-tools isn't installed, it will use
+  ;; doc-view (shipped with Emacs) instead.
+  (org-file-apps
+   '((auto-mode . emacs)
+     ("\\.mm\\'" . default)
+     ("\\.x?html?\\'" . default)
+     ("\\.pdf\\'" . emacs)))
+  (org-highlight-latex-and-related '(latex entities) "set up fontlocking for latex")
+  (org-startup-with-inline-images t "Show inline images.")
+  (org-log-done 'time)
+  (org-goto-interface 'outline-path-completion)
+  (org-ellipsis "⬎")
+  (org-tag-persistent-alist '(("jobs" . ?j)
+                              (:startgroup . nil)
+                              ("@work" . ?w)
+                              ("@home" . ?h)
+                              (:endgroup . nil)))
+  ;; I keep my recipes in an org file and tag them based on what kind of
+  ;; dish they are.  The level one headings are names, and each gets two
+  ;; level two headings --- ingredients and directions.  To easily search via
+  ;; tag, I can restrict org-agenda to that buffer using < then hit m to
+  ;; match based on a tag.
+;;  (org-tags-exclude-from-inheritance
+;;   '("BREAKFAST" "DINNER" "DESSERT" "SIDE" "CHICKEN" "PORK" "SEAFOOD"
+;;     "BEEF" "PASTA" "SOUP" "SNACK" "DRINK" "LAMB" "VEGETARIAN"))
+  ;; Org-refile lets me quickly move around headings in org files.  It
+  ;; plays nicely with org-capture, which I use to turn emails into TODOs
+  ;; easily (among other things, of course)
+  (org-outline-path-complete-in-steps nil)
+  (org-refile-allow-creating-parent-nodes 'confirm)
+  (org-refile-use-outline-path 'file)
+  :custom-face
+  (org-block ((t (:inherit default))))
+  :config
+  (setq org-refile-targets '((nil . (:level . 1)) ; current file
+                             (org-default-notes-file . (:maxlevel . 6))
+                             (my/org-scheduled . (:level . 1))))
+  ;; These are the programming languages org should teach itself:
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (latex . t)
+     (python . t)
+     (R . t)
+     (shell . t)))
+  ;; remove C-c [ from adding org file to front of agenda
+  (unbind-key "C-c [" org-mode-map)
+  (defun my/setup-org-mode ()
+    "Setup org-mode."
+    ;; An alist of symbols to prettify, see `prettify-symbols-alist'.
+    ;; Whether the symbol actually gets prettified is controlled by
+    ;; `org-pretty-compose-p', which see.
+    (setq-local prettify-symbols-unprettify-at-point nil)
+    (setq-local prettify-symbols-alist '(("*" . ?•)))
+    (setq-local prettify-symbols-compose-predicate #'my/org-pretty-compose-p))
+  (defun my/org-next-visible-heading (arg)
+    "Go to next heading and beginning of line."
+    (interactive "p")
+    (org-next-visible-heading arg)
+    (org-beginning-of-line))
+  (defun my/org-previous-visible-heading (arg)
+    "Go to previous heading and beginning of line."
+    (interactive "p")
+    (org-previous-visible-heading arg)
+    (org-beginning-of-line))
+  (defun my/org-pretty-compose-p (start end match)
+    "Return t if the symbol should be prettified.
+START and END are the start and end points, MATCH is the string
+match.  See also `prettify-symbols-compose-predicate'."
+    (if (string= match "*")
+        ;; prettify asterisks in headings
+        (and (org-match-line org-outline-regexp-bol)
+             (< end (match-end 0)))
+      ;; else rely on the default function
+      (prettify-symbols-default-compose-p start end match))))
+
+#+END_SRC
+
+* Nathan customizations
+
+From Alex Branham gitlab personal emacs file. 
+
+#+BEGIN_SRC emacs-lisp
+;; Finally, I set up no-littering, which keeps my .emacs.d folder clean by
+;; putting files into appropriate subfolders rather than letting them get
+;; saved all over the place:
+(use-package no-littering
+  :demand t)
+
+(use-package dired
+  ;; Emacs can act as your file finder/explorer.  Dired is the built-in way
+  ;; to do this.
+  :defer t
+  :bind
+  (("C-x C-d" . dired) ; overrides list-directory, which I never use
+   :map  dired-mode-map
+   ("l" . dired-up-directory)) ; use l to go up in dired
+  :config
+  (setq dired-auto-revert-buffer t)
+  (setq dired-create-destination-dirs 'ask)
+  (setq dired-dwim-target t)
+  (setq dired-isearch-filenames 'dwim)
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  ;; -l: long listing format REQUIRED in dired-listing-switches
+  ;; -a: show everything (including dotfiles)
+  ;; -h: human-readable file sizes
+  (setq dired-listing-switches "-alh --group-directories-first")
+  (defun my/dired-ediff-marked ()
+    "Run `ediff' on two marked files in a dired buffer."
+    (interactive)
+    (unless (eq 'dired-mode major-mode)
+      (error "For use in dired buffers only"))
+    (let ((files (dired-get-marked-files)))
+      (when (not (eq 2 (length files)))
+        (error "Two files not marked"))
+      (ediff (car files) (nth 1 files)))))
+
+(use-package dired-x
+  :hook
+  (dired-load . (lambda () (load "dired-x" nil t)))
+  :bind
+  ("C-x C-j" . dired-jump)
+  :custom
+  ;; By default, dired asks you if you want to delete the dired buffer if
+  ;; you delete the folder. I can't think of a reason I'd ever want to do
+  ;; that.
+  (dired-clean-confirm-killing-deleted-buffers nil))
+
+(use-package flymake
+  :defer t
+  :custom
+  (flymake-proc-compilation-prevents-syntax-check nil)
+  :hook
+  ;; Some modes turn `flymake-mode' on by default, I have to tell these
+  ;; specifically to do it:
+  ((emacs-lisp-mode python-mode LaTeX-mode). flymake-mode)
+  :bind
+  (:map flymake-mode-map
+        ("M-P" . flymake-goto-prev-error)
+        ("M-N" . flymake-goto-next-error))
+  :config
+  (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake))
+
+(use-package flyspell
+  ;; on the fly spell checking
+  :hook
+  (text-mode . turn-on-flyspell)
+  (prog-mode . flyspell-prog-mode)
+  :custom
+  (flyspell-use-meta-tab nil)
+  (flyspell-abbrev-p t)
+  (flyspell-issue-welcome-flag nil)
+  (flyspell-use-global-abbrev-table-p t))
+
+(use-package footnote
+  :defer
+  :hook
+  (message-mode . footnote-mode))
+
+(use-package ivy
+  :bind
+  ("C-M-z" . ivy-resume)
+  ([remap list-buffers] . ivy-switch-buffer)
+  :config
+  (setq ivy-count-format "(%d/%d) ")
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-extra-directories '("./"))
+  (dolist (fun '(org-refile org-agenda-refile org-capture-refile))
+    (setq ivy-initial-inputs-alist
+          (delete `(,fun . "^") ivy-initial-inputs-alist)))
+  (ivy-mode))
+
 #+END_SRC
