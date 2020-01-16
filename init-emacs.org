@@ -7,7 +7,17 @@ First, let Emacs know where it is you keep your master =.bib= file:
 #+BEGIN_SRC emacs-lisp
   (defvar my/bib-file-location "~/references.bib"
     "Where I keep my bib file.")
+
+;; I like the default splash screen, but if the window is not large enough, it will not show the logo and everything
+;; See https://www.emacswiki.org/emacs/FrameSize for further help
+(when window-system (set-frame-size (selected-frame) 80 60))
+(add-to-list 'default-frame-alist '(height . 60))
+
+;; Bigger fonts fro older eyes
+(set-default-font "Menlo 13")
+
 #+END_SRC
+
 * Use-package
 We'll use the excellent use-package package to manage packages.
 We need to make sure it's installed, though:
@@ -25,6 +35,17 @@ We need to make sure it's installed, though:
   (require 'bind-key)
 
 #+END_SRC
+* No-littering
+
+no-littering keeps the .emacs.d folder clean by putting files into appropriate subfolders rather than letting them get saved all over the place:
+
+#+BEGIN_SRC emacs-lisp
+
+(use-package no-littering
+  :demand t)
+
+#+END_SRC
+
 * Dealing with default emacs
 Emacs was created probably before you were born, which makes it super ancient in computer terms. In this section, we override some of the (now) silly default behavior so that emacs acts more like we expect a program to act in the 21st century. We'll load up some better default settings, activate auto-completion, and enable a smart way of dealing with pairs (e.g. parentheses, quotes, etc)
 
@@ -32,11 +53,12 @@ In particular, we load =better-defaults=, a package that selects some better def
 
 #+BEGIN_SRC emacs-lisp
   (delete-selection-mode) ; if I select something then type, delete it and replace it
-  (use-package better-defaults
-    :ensure t)
-  (menu-bar-mode) ; better-defaults disables this but it's useful when you're getting used to Emacs
+  ;;(use-package better-defaults
+  ;;  :ensure t)
+  ;;(menu-bar-mode) ; better-defaults disables this but it's useful when you're getting used to Emacs
+  ;;(tool-bar-mode) ; I like the tool bar
   (setq scroll-conservatively 1000) ; when point moves offscreen, don't jump to recenter it
-  (setq ring-bell-function 'ignore)
+  ;;(setq ring-bell-function 'ignore)
 #+END_SRC
 
 In my world, =C-z= is undo, not minimize emacs:
@@ -327,12 +349,6 @@ match.  See also `prettify-symbols-compose-predicate'."
 From Alex Branham gitlab personal emacs file. 
 
 #+BEGIN_SRC emacs-lisp
-;; Finally, I set up no-littering, which keeps my .emacs.d folder clean by
-;; putting files into appropriate subfolders rather than letting them get
-;; saved all over the place:
-(use-package no-littering
-  :demand t)
-
 (use-package dired
   ;; Emacs can act as your file finder/explorer.  Dired is the built-in way
   ;; to do this.
@@ -342,6 +358,9 @@ From Alex Branham gitlab personal emacs file.
    :map  dired-mode-map
    ("l" . dired-up-directory)) ; use l to go up in dired
   :config
+  ;; on macOS, ls doesn't support the --dired option while on Linux it is supported.
+  (when (string= system-type "darwin")       
+    (setq dired-use-ls-dired nil))
   (setq dired-auto-revert-buffer t)
   (setq dired-create-destination-dirs 'ask)
   (setq dired-dwim-target t)
