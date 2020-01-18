@@ -7,3 +7,5 @@ auto-save-list/*
 /places
 /ido.last
 /abbrev_defs
+transient
+url
