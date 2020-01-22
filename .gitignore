@@ -9,3 +9,8 @@ auto-save-list/*
 /abbrev_defs
 transient
 url
+.cask/
+quelpa/
+SessionDesktop.el
+SessionDesktop.el
+*.el#

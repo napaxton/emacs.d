@@ -1,5 +1,5 @@
 #+TITLE: Emacs configuration
-* Your customizations
+* Your customizations 
 You will need to tell Emacs a little about your particular setup:
 
 First, let Emacs know where it is you keep your master =.bib= file:
@@ -346,6 +346,7 @@ match.  See also `prettify-symbols-compose-predicate'."
 
 * Nathan customizations
 
+** Branham additions
 From Alex Branham gitlab personal emacs file. 
 
 #+BEGIN_SRC emacs-lisp
@@ -435,5 +436,58 @@ From Alex Branham gitlab personal emacs file.
     (setq ivy-initial-inputs-alist
           (delete `(,fun . "^") ivy-initial-inputs-alist)))
   (ivy-mode))
+#+END_SRC
+
+** Additional stuff I have just found
+
+*** Weather package wttrin
+ http://pragmaticemacs.com/category/fun/
+
+#+BEGIN_SRC emacs-lisp
+
+  ;;weather from wttr.in
+  (use-package wttrin
+    :ensure t
+    :commands (wttrin)
+    :init
+    (setq wttrin-default-cities '("Washington"
+				  "Redlands")))
+
+  ;;advise wttrin to save frame arrangement
+  ;;requires frame-cmds package
+  ;;;; the following line installs frame-cmds
+
+  ;; (quelpa '(frame-cmds :fetcher git :url "https://github.com/emacsmirror/frame-cmds.git" ))
+
+  ;; ;;(setq quelpa-upgrade-p t)
+
+  ;; (defun bjm/wttrin-save-frame ()
+  ;;   "Save frame and window configuration and then expand frame for wttrin."
+    ;;save window arrangement to a register
+  ;;   (window-configuration-to-register :pre-wttrin)
+  ;;   (delete-other-windows)
+  ;;   ;;save frame setup and resize
+  ;;   (save-frame-config)
+  ;;   (set-frame-width (selected-frame) 130)
+  ;;   (set-frame-height (selected-frame) 48)
+  ;;   )
+  ;; (advice-add 'wttrin :before #'bjm/wttrin-save-frame)
+
+  ;; (defun bjm/wt
+  ;;    trin-restore-frame (
+  ;;  "Restore frame and window configuration saved prior to launching wttrin."
+  ;;  (interactive)
+  ;;  (jump-to-frame-config-register)
+  ;;  (jump-to-register :pre-wttrin)
+  ;;  ))
+  ;; (advice-add 'wttrin-exit :after #'bjm/wttrin-restore-frame)
+
+#+END_SRC
+
+*** Where Org-mode should find files
+
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-files (quote ("~/Dropbox (Personal)/org")))
+(find-file "~/Dropbox (Personal)/org/main.org")
 
 #+END_SRC

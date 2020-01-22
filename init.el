@@ -1,4 +1,13 @@
 ;;; init.el --- This is a basic emacs configuration aimed at social scientists using R/latex/markdown/git
+;; ____________________________________________________________________________
+;; Aquamacs custom-file warning:
+;; Warning: After loading this .emacs file, Aquamacs will also load
+;; customizations from `custom-file' (customizations.el). Any settings there
+;; will override those made here.
+;; Consider moving your startup settings to the Preferences.el file, which
+;; is loaded after `custom-file':
+;; ~/Library/Preferences/Aquamacs Emacs/Preferences
+;; _____________________________________________________________________________
 
 ;;; Commentary:
 ;; init.el is the first file that Emacs reads when it starts up. We
@@ -45,9 +54,53 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default default default italic underline success warning error])
+ '(custom-enabled-themes (quote (tango-dark)))
+ '(dired-clean-confirm-killing-deleted-buffers nil t)
+ '(flymake-proc-compilation-prevents-syntax-check nil)
+ '(flyspell-abbrev-p t)
+ '(flyspell-issue-welcome-flag nil)
+ '(flyspell-use-global-abbrev-table-p t)
+ '(flyspell-use-meta-tab nil)
+ '(org-M-RET-may-split-line nil)
+ '(org-blank-before-new-entry (quote ((heading) (plain-list-item))))
+ '(org-catch-invisible-edits (quote show-and-error))
+ '(org-cycle-separator-lines 0)
+ '(org-ellipsis "⬎")
+ '(org-enforce-todo-checkbox-dependencies t)
+ '(org-enforce-todo-dependencies t)
+ '(org-file-apps
+   (quote
+    ((auto-mode . emacs)
+     ("\\.mm\\'" . default)
+     ("\\.x?html?\\'" . default)
+     ("\\.pdf\\'" . emacs))))
+ '(org-fontify-quote-and-verse-blocks t)
+ '(org-goto-interface (quote outline-path-completion))
+ '(org-hide-emphasis-markers t)
+ '(org-highlight-latex-and-related (quote (latex entities)))
+ '(org-image-actual-width (quote (300)))
+ '(org-imenu-depth 6)
+ '(org-log-done (quote time))
+ '(org-outline-path-complete-in-steps nil)
+ '(org-pretty-entities t)
+ '(org-preview-latex-default-process (quote imagemagick))
+ '(org-refile-allow-creating-parent-nodes (quote confirm))
+ '(org-refile-use-outline-path (quote file))
+ '(org-special-ctrl-a/e t)
+ '(org-startup-with-inline-images t)
+ '(org-support-shift-select t)
+ '(org-tag-persistent-alist
+   (quote
+    (("jobs" . 106)
+     (:startgroup)
+     ("@work" . 119)
+     ("@home" . 104)
+     (:endgroup))))
  '(package-selected-packages
    (quote
-    (no-littering ivy-bibtex ivy magit markdown-mode auctex ess use-package exec-path-from-shell company better-defaults)))
+    (restart-emacs quelpa wttrin no-littering ivy-bibtex ivy magit markdown-mode auctex ess use-package exec-path-from-shell company better-defaults)))
  '(show-paren-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
